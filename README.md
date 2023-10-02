@@ -64,14 +64,7 @@ eth0      Link encap:Ethernet  HWaddr 4A:8D:67:C1:6F:3D
           RX bytes:849394598 (810.0 MiB)  TX bytes:18280681092 (17.0 GiB)
           Interrupt:28 
 
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          inet6 addr: ::1/128 Scope:Host
-          UP LOOPBACK RUNNING  MTU:65536  Metric:1
-          RX packets:4495503 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:4495503 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:18526466067 (17.2 GiB)  TX bytes:18526466067 (17.2 GiB)
+
 
 
 root@jxy:~$ curl --location --max-time 3 --request POST '192.168.145.66:10000/?exec_shell=cat%20%2Fproc%2Fversion'
@@ -87,14 +80,4 @@ eth0      Link encap:Ethernet  HWaddr 4A:8D:67:C1:6F:3D
           collisions:0 txqueuelen:1000 
           RX bytes:1191034352 (1.1 GiB)  TX bytes:25709259069 (23.9 GiB)
           Interrupt:28 
-
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          inet6 addr: ::1/128 Scope:Host
-          UP LOOPBACK RUNNING  MTU:65536  Metric:1
-          RX packets:6329738 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:6329738 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:26120233690 (24.3 GiB)  TX bytes:26120233690 (24.3 GiB)
-
 
