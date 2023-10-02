@@ -1,0 +1,15 @@
+#!/bin/sh
+export LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:/lib"
+while true; do
+    ProcNumber=`ps -ef |grep -w JDaemon |grep -v grep|wc -l`
+    if [ $ProcNumber -gt 0 ];then
+        echo "JDaemon Program is running. Killing it..."
+        killall JDaemon
+        kill -9  `pidof JDaemon`
+    else
+        echo "JDaemon Program does not exist."
+    fi
+    cd /home/jrun && nohup ./JDaemon &
+    wait $pid
+    sleep 1
+done

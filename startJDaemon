@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# Set the path to your program executable
+PROGRAM="/home/jrun/startJDSafe"
+
+# Set the program options
+OPTIONS=""
+
+# Set the program user and group
+
+# Set the log file path
+LOG_FILE="/home/jrun/JDaemon.log"
+
+# Function to start the program
+start() {
+    echo "Starting the program..."
+    if [ -f "$LOG_FILE" ]; then
+        rm "$LOG_FILE"
+    fi
+    ProcNumber=`ps -ef |grep -w "startJDSafe" |grep -v grep|wc -l`
+    if [ $ProcNumber -gt 0 ];then
+        echo "startJDSafe Program is running. Killing it..."
+        kill -9  `pidof startJDSafe`
+        killall startJDSafe
+    else
+        echo "startJDSafe Program does not exist."
+    fi
+    /bin/sh -c "$PROGRAM  >> $LOG_FILE 2>&1 &" 
+}
+
+# Function to stop the program
+stop() {
+    echo "Stopping the program..."
+    ProcNumber=`ps -ef |grep -w "startJDSafe" |grep -v grep|wc -l`
+    if [ $ProcNumber -gt 0 ];then
+        echo "startJDSafe Program is running. Killing it..."
+        kill -9  `pidof startJDSafe`
+        killall startJDSafe
+    else
+        echo "startJDSafe Program does not exist."
+    fi
+
+
+    ProcNumber2=`ps -ef |grep -w JDaemon |grep -v grep|wc -l`
+    if [ $ProcNumber2 -gt 0 ];then
+        echo "JDaemon Program is running. Killing it..."
+        kill -9  `pidof JDaemon`
+    else
+        echo "JDaemon Program does not exist."
+    fi
+    
+}
+
+# Function to check if the program is running
+status() {
+    if pgrep -f "$PROGRAM" >/dev/null; then
+        echo "The startJDSafe program is running."
+    else
+        echo "The startJDSafe program is not running."
+    fi
+}
+
+# Function to display the help message
+usage() {
+    echo "Usage: $0 {start|stop|restart|status}"
+}
+
+# Check the command-line arguments
+case "$1" in
+    start)
+        stop
+        sleep 1
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        sleep 2
+        start
+        ;;
+    status)
+        status
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
+
+exit 0
