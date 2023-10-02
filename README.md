@@ -34,6 +34,8 @@ Connecting to 192.168.145.66:10000 (192.168.145.66:10000)
 saving to 'libHttpInterface.so'
 libHttpInterface.so  100% |*****************************| 2898k  0:00:00 ETA
 'libHttpInterface.so' saved
+
+
 root@jxy:/$ ls
 libHttpInterface.so
 
@@ -41,13 +43,16 @@ root@jxy:~$ curl -o libHttpInterface.so --location --max-time 3 --request POST '
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100 2898k  100 2898k    0     0  8064k      0 --:--:-- --:--:-- --:--:-- 8051k
+
+
 root@jxy:~$ ls
 libHttpInterface.so  out.txt              query_disk
-
 
 # 执行shell 示例 (注意curl 需要转义 且没有" ") 空格 转义 %20 /转义 %2F
 root@jxy:~$ wget -q -O - 192.168.145.66:10000/?exec_shell="cat /proc/version"
 Linux version 4.19.148 (root@xxx) (gcc version 8.4.0 (Buildroot 2020.02.9-23-g81e333f)) #5 SMP PREEMPT Sat Jul 29 11:40:33 CST 2023
+
+
 root@jxy:~$ wget -q -O - 192.168.145.66:10000/?exec_shell="ifconfig"
 eth0      Link encap:Ethernet  HWaddr 4A:8D:67:C1:6F:3D  
           inet addr:192.168.145.66  Bcast:192.168.145.255  Mask:255.255.255.0
