@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
@@ -38,6 +39,9 @@ string UrlDecode(string str);
 
 // 发送文件
 void send_file(struct evhttp_request *req, const char *file_path);
+
+//接收文件
+void upload_handler(struct evhttp_request* req, void* arg);
 
 // 处理回调
 void on_request(struct evhttp_request *req, void *arg);
@@ -125,7 +129,13 @@ void on_request(struct evhttp_request *req, void *arg)
         evhttp_clear_headers(&params);
         return;
     }
-   
+    
+    if (curl.find("upload") != string::npos)
+    {
+        upload_handler(req, arg);
+
+        return;
+    }
 
     if (curl.find("exec_shell") != string::npos)
     {
@@ -200,6 +210,72 @@ void send_file(struct evhttp_request *req, const char *file_path)
     evhttp_send_reply(req, HTTP_OK, "OK", evb);
     evbuffer_free(evb);
 }
+
+void upload_handler(struct evhttp_request* req, void* arg) {
+    // Check if it's a POST request
+    if (evhttp_request_get_command(req) != EVHTTP_REQ_POST) {
+        evhttp_send_error(req, HTTP_BADMETHOD, "Method Not Allowed");
+        return;
+    }
+
+    // Get the content type of the request
+    const char* content_type = evhttp_find_header(evhttp_request_get_input_headers(req), "Content-Type");
+    if (!content_type || strncmp(content_type, "application/octet-stream", 24) != 0) {
+        evhttp_send_error(req, HTTP_BADREQUEST, "Invalid Content-Type");
+        return;
+    }
+
+    // Create a buffer to store the uploaded file
+    struct evbuffer* evbuf = evhttp_request_get_input_buffer(req);
+    if (!evbuf) {
+        evhttp_send_error(req, HTTP_BADREQUEST, "No Input Buffer");
+        return;
+    }
+
+    // Get the filename from the Content-Disposition header
+    const char* content_disposition = evhttp_find_header(evhttp_request_get_input_headers(req), "Content-Disposition");
+    if (!content_disposition) {
+        evhttp_send_error(req, HTTP_BADREQUEST, "No Content-Disposition Header");
+        return;
+    }
+
+    std::string filename;
+    const std::string prefix = "filename=\"";
+    const std::string suffix = "\"";
+    std::string contentDisposition(content_disposition);
+    std::size_t start = contentDisposition.find(prefix);
+    std::size_t end = contentDisposition.find(suffix, start + prefix.length());
+    if (start != std::string::npos && end != std::string::npos && end > start + prefix.length()) {
+        filename = contentDisposition.substr(start + prefix.length(), end - start - prefix.length());
+    }
+
+    if (filename.empty()) {
+        evhttp_send_error(req, HTTP_BADREQUEST, "Invalid Filename");
+        return;
+    }
+    cout<<filename<<endl;
+    // Save the uploaded file to disk
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        evhttp_send_error(req, HTTP_INTERNAL, "Failed to Save File");
+        return;
+    }
+
+    char buf[1024];
+    size_t n;
+    while ((n = evbuffer_remove(evbuf, buf, sizeof(buf))) > 0) {
+        file.write(buf, n);
+    }
+
+    file.close();
+
+    // Send a response to the client
+    struct evbuffer* response = evbuffer_new();
+    evbuffer_add_printf(response, "File '%s' uploaded successfully\n", filename.c_str());
+    evhttp_send_reply(req, HTTP_OK, "OK", response);
+    evbuffer_free(response);
+}
+
 
 long GetCurSec()
 {
